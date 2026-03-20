@@ -44,21 +44,6 @@ We evaluate a pretrained **DistilBERT** model fine-tuned on SST-2 (sentiment cla
 
 ---
 
-## Performance Visualization
-
-Latency (lower is better)
-Baseline ████████████
-Quantized ██████████
-Pruned ███████████████████████
-
-Accuracy (higher is better)
-Baseline ██████████████████████
-Quantized ████████████████████
-Pruned ██████████████████
-
-
----
-
 ## Key Insights
 
 ### Quantization is highly effective
