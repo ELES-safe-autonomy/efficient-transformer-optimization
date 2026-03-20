@@ -50,13 +50,9 @@ We evaluate a pretrained **DistilBERT** model fine-tuned on SST-2 (sentiment cla
 - ~1.13× speedup with minimal accuracy drop (~2%)
 - Aligns well with CPU-based dense computation
 
----
-
 ### Pruning does not guarantee speedup
 - Increased latency despite reduced parameters
 - Accuracy degradation is more significant
-
----
 
 ### Hardware-awareness is critical
 - Sparse models do not automatically yield faster inference
