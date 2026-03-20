@@ -33,24 +33,7 @@ We evaluate a pretrained **DistilBERT** model fine-tuned on SST-2 (sentiment cla
 ### 3️⃣ Pruning
 - Unstructured L1 pruning applied to linear layers
 - Introduces sparsity by removing low-magnitude weights
-
 ---
-
-## Project Structure
-
-efficient-transformer-optimization/
-│
-├── models/ # Model loading utilities
-├── optimization/ # Quantization and pruning methods
-├── benchmarking/ # Latency + accuracy evaluation
-├── utils/ # Dataset loading
-├── results/ # Output metrics
-├── run_experiments.py
-└── README.md
-
-
----
-
 ## Results
 
 | Model      | Latency (s) | Accuracy |
