@@ -76,7 +76,7 @@ We evaluate the impact of efficiency techniques on transformer inference perform
 
 ---
 
-## ▶️ How to Run
+## How to Run
 
 ```bash
 pip install -r requirements.txt
