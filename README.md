@@ -1,4 +1,4 @@
-# 🚀 Efficient Transformer Optimization
+# Efficient Transformer Optimization
 
 This project investigates **efficient deep learning techniques** for transformer models, focusing on **quantization and pruning**, and evaluates their impact on **inference latency, accuracy, and deployment performance**.
 
@@ -6,7 +6,7 @@ The goal is to understand how model optimization techniques translate into **rea
 
 ---
 
-## 🧠 Motivation
+## Motivation
 
 Modern deep learning models achieve strong performance but are often **computationally expensive**. In real-world deployment scenarios, especially on specialized hardware or edge devices, **efficiency is as critical as accuracy**.
 
@@ -18,7 +18,7 @@ This project explores:
 
 ---
 
-## ⚙️ Methodology
+## Methodology
 
 We evaluate a pretrained **DistilBERT** model fine-tuned on SST-2 (sentiment classification) under three settings:
 
@@ -36,7 +36,7 @@ We evaluate a pretrained **DistilBERT** model fine-tuned on SST-2 (sentiment cla
 
 ---
 
-## 🏗️ Project Structure
+## Project Structure
 
 efficient-transformer-optimization/
 │
@@ -51,7 +51,7 @@ efficient-transformer-optimization/
 
 ---
 
-## 📊 Results
+## Results
 
 | Model      | Latency (s) | Accuracy |
 |-----------|------------|----------|
@@ -61,7 +61,7 @@ efficient-transformer-optimization/
 
 ---
 
-## 📈 Performance Visualization
+## Performance Visualization
 
 Latency (lower is better)
 Baseline ████████████
@@ -76,33 +76,33 @@ Pruned ██████████████████
 
 ---
 
-## 🔍 Key Insights
+## Key Insights
 
-### ✅ Quantization is highly effective
+### Quantization is highly effective
 - ~1.13× speedup with minimal accuracy drop (~2%)
 - Aligns well with CPU-based dense computation
 
 ---
 
-### ⚠️ Pruning does not guarantee speedup
+### Pruning does not guarantee speedup
 - Increased latency despite reduced parameters
 - Accuracy degradation is more significant
 
 ---
 
-### 🧠 Hardware-awareness is critical
+### Hardware-awareness is critical
 - Sparse models do not automatically yield faster inference
 - Efficient deployment depends on **hardware support for sparsity**
 
 ---
 
-## 🧪 Results & Discussion
+## Results & Discussion
 
 We evaluate the impact of efficiency techniques on transformer inference performance using a pretrained DistilBERT model fine-tuned on SST-2. Dynamic quantization reduced average inference latency from 0.0153s to 0.0135s (~1.13× speedup) with only a minor drop in accuracy (94% → 92%), demonstrating an effective tradeoff between efficiency and performance. In contrast, unstructured L1 pruning reduced model parameters but resulted in increased latency (0.0494s) and a larger accuracy drop (90%), highlighting that sparsity alone does not guarantee speedup on standard CPU hardware due to the lack of optimized sparse computation kernels. These results emphasize the importance of hardware-aware optimization: techniques like quantization align well with existing dense compute pipelines, while pruning requires specialized support to yield practical benefits.
 
 ---
 
-## 🔮 Future Work
+## Future Work
 
 - Structured pruning (hardware-friendly sparsity)
 - Quantization-aware training (QAT)
