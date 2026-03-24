@@ -5,6 +5,7 @@ from utils.dataset import load_data
 from benchmarking.benchmark import benchmark_model
 from optimization.quantization import apply_dynamic_quantization
 from optimization.pruning import apply_pruning
+from optimization.pruning import apply_structured_pruning
 
 def main():
     dataset = load_data()
@@ -22,10 +23,15 @@ def main():
     pruned_model = apply_pruning(model)
     p_latency, p_acc = benchmark_model(pruned_model, tokenizer, dataset)
 
+    # Structured Pruned
+    struct_pruned_model = apply_structured_pruning(model, amount=0.2)
+    sp_latency, sp_acc = benchmark_model(pruned_model, tokenizer, dataset)
+
+    
     results = pd.DataFrame({
-        "Model": ["Baseline", "Quantized", "Pruned"],
-        "Latency": [base_latency, q_latency, p_latency],
-        "Accuracy": [base_acc, q_acc, p_acc]
+        "Model": ["Baseline", "Quantized", "Pruned", "Structured Pruned"],
+        "Latency": [base_latency, q_latency, p_latency, sp_latency],
+        "Accuracy": [base_acc, q_acc, p_acc, sp_acc]
     })
 
     print(results)
