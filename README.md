@@ -33,9 +33,6 @@ We evaluate a pretrained **DistilBERT** model fine-tuned on SST-2 (sentiment cla
 ### 3️⃣ Pruning
 - Unstructured L1 pruning applied to linear layers
 - Introduces sparsity by removing low-magnitude weights
-<<<<<<< HEAD
----
-=======
 
 ### 4️⃣ Structured Pruning
 - Structured pruning applied to linear layers
@@ -43,7 +40,6 @@ We evaluate a pretrained **DistilBERT** model fine-tuned on SST-2 (sentiment cla
 
 ---
 
->>>>>>> 52b97c5 (Update README with latest benchmarking results)
 ## Results
 
 | Model              | Latency (s) | Accuracy |
@@ -57,31 +53,6 @@ We evaluate a pretrained **DistilBERT** model fine-tuned on SST-2 (sentiment cla
 
 ## Key Insights
 
-<<<<<<< HEAD
-### Quantization is highly effective
-- ~1.13× speedup with minimal accuracy drop (~2%)
-- Aligns well with CPU-based dense computation
-
-### Pruning does not guarantee speedup
-- Increased latency despite reduced parameters
-- Accuracy degradation is more significant
-
-### Hardware-awareness is critical
-- Sparse models do not automatically yield faster inference
-- Efficient deployment depends on **hardware support for sparsity**
-
----
-
-## Results & Discussion
-
-We evaluate the impact of efficiency techniques on transformer inference performance using a pretrained DistilBERT model fine-tuned on SST-2. Dynamic quantization reduced average inference latency from 0.0153s to 0.0135s (~1.13× speedup) with only a minor drop in accuracy (94% → 92%), demonstrating an effective tradeoff between efficiency and performance. In contrast, unstructured L1 pruning reduced model parameters but resulted in increased latency (0.0494s) and a larger accuracy drop (90%), highlighting that sparsity alone does not guarantee speedup on standard CPU hardware due to the lack of optimized sparse computation kernels. These results emphasize the importance of hardware-aware optimization: techniques like quantization align well with existing dense compute pipelines, while pruning requires specialized support to yield practical benefits.
-
----
-
-## Future Work
-
-- Structured pruning (hardware-friendly sparsity)
-=======
 ### Quantization preserved accuracy well, but did not improve latency in this setup
 - Accuracy dropped only slightly from 94% to 92%
 - However, inference latency increased relative to the baseline on this CPU run
@@ -105,7 +76,6 @@ We evaluate the impact of efficiency techniques on transformer inference perform
 ## Future Work
 
 - Structured pruning with architecture-aware model reconstruction
->>>>>>> 52b97c5 (Update README with latest benchmarking results)
 - Quantization-aware training (QAT)
 - Mixed-precision inference (FP16 / INT8 hybrid)
 - Benchmarking on GPU / specialized accelerators
