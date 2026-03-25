@@ -30,3 +30,39 @@ def benchmark_model(model, tokenizer, dataset, device="cpu", max_samples=100):
     accuracy = correct / max_samples
 
     return avg_latency, accuracy
+
+
+def benchmark_fused_softmax(device="cpu", size=512, trials=100):
+    import torch
+    import time
+    from optimization.fused_softmax import fused_softmax_matmul
+
+    x = torch.randn(1, size).to(device)
+    V = torch.randn(size, size).to(device)
+
+    total_time = 0
+
+    for _ in range(trials):
+        start = time.time()
+        fused_softmax_matmul(x, V)
+        end = time.time()
+        total_time += (end - start)
+
+    return total_time / trials
+
+def benchmark_standard_softmax(device="cpu", size=512, trials=100):
+    import torch
+    import time
+
+    x = torch.randn(1, size).to(device)
+    V = torch.randn(size, size).to(device)
+
+    total_time = 0
+
+    for _ in range(trials):
+        start = time.time()
+        output = torch.softmax(x, dim=-1) @ V
+        end = time.time()
+        total_time += (end - start)
+
+    return total_time / trials

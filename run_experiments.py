@@ -6,6 +6,7 @@ from benchmarking.benchmark import benchmark_model
 from optimization.quantization import apply_dynamic_quantization
 from optimization.pruning import apply_pruning
 from optimization.pruning import apply_structured_pruning
+from benchmarking.benchmark import benchmark_fused_softmax, benchmark_standard_softmax
 
 def main():
     dataset = load_data()
@@ -27,6 +28,13 @@ def main():
     struct_pruned_model = apply_structured_pruning(model, amount=0.2)
     sp_latency, sp_acc = benchmark_model(pruned_model, tokenizer, dataset)
 
+    std_softmax_time = benchmark_standard_softmax()
+    fused_softmax_time = benchmark_fused_softmax()
+
+    print("\nSoftmax Comparison:")
+    print(f"Standard Softmax: {std_softmax_time:.6f}s")
+    print(f"Fused Softmax:    {fused_softmax_time:.6f}s")
+    
     
     results = pd.DataFrame({
         "Model": ["Baseline", "Quantized", "Pruned", "Structured Pruned"],
@@ -39,3 +47,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+
