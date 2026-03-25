@@ -83,29 +83,44 @@ Recent work [LLM Inference Acceleration via Efficient Operation Fusion](https://
 
 The key motivation is that normalization operations such as Softmax and LayerNorm introduce **global aggregation (collective operations)**, which can become a significant latency bottleneck in modern hardware systems.
 
----
+### 🔬 Fused Softmax: Formulation and Analysis
 
-### Core Idea
+In standard Transformer attention, Softmax is applied prior to matrix multiplication:
 
-In standard Transformer computation, Softmax is applied before matrix multiplication:
+\[
+\text{Softmax}(x) V = \frac{\exp(x)}{\sum_i \exp(x_i)} V
+\]
 
-Standard formulation:
-Softmax(x) @ V
+This involves the following steps:
+1. Compute element-wise exponentials \( \exp(x) \)
+2. Aggregate across all elements to compute \( \sum_i \exp(x_i) \) (global reduction)
+3. Normalize the vector
+4. Perform matrix multiplication with \( V \)
 
-Fused formulation:
-(exp(x) @ V) / ∑ exp(x)
+### Algebraic Reordering (Operation Fusion)
 
-This transformation preserves exact numerical equivalence while enabling a key optimization:
+The paper shows that the above computation can be **reordered without changing the result**:
 
-The expensive normalization (denominator) can be computed **in parallel** with the matrix multiplication.
+\[
+\text{Softmax}(x) V
+=
+\frac{\exp(x) V}{\sum_i \exp(x_i)}
+\]
 
-This approach leverages a fundamental property:
+This fused formulation delays normalization and instead performs:
+- matrix multiplication first
+- normalization afterward
 
- **Matrix multiplication is linear and commutes with scaling**
+This is valid due to the **linearity of matrix multiplication**, allowing scaling to commute with the linear operation.
 
-This allows normalization to be delayed until after the matrix multiplication without changing the final result.
+### Implementation
 
-We implemented a simplified version of the fused Softmax operation:
+Standard implementation:
+
+```python
+output = torch.softmax(x, dim=-1) @ V
+```
+Fused Implementation:
 
 ```python
 exp_x = torch.exp(x)
@@ -114,58 +129,48 @@ denominator = exp_x.sum(dim=-1, keepdim=True)
 output = numerator / denominator
 ```
 
+### Experimental Results
 
-This involves:
-1. Computing exponentials
-2. Summing across all elements (global aggregation)
-3. Normalizing
-4. Performing matrix multiplication
-
-The paper shows that this can be **reordered algebraically** as:
-
-This replaces the standard implementation:
-
-output = torch.softmax(x, dim=-1) @ V
-
-Experimental Results
 Method	Latency (s)
 Standard Softmax	0.000113
 Fused Softmax	0.000164
 
-The fused implementation was approximately 1.45× slower than the standard PyTorch Softmax on CPU.
+The fused implementation is approximately 1.45× slower than the standard PyTorch Softmax on CPU.
 
-Analysis & Key Insight
+### Analysis & Key Insight
 
-Although the fused formulation is mathematically equivalent, it did not yield a performance improvement in this environment. This outcome is consistent with the paper’s emphasis on hardware-aware optimization.
+Although the fused formulation is mathematically equivalent, it does not yield a performance improvement in this environment. This aligns with the paper’s emphasis on hardware-aware optimization.
 
-The proposed method relies on:
+The proposed method assumes:
 
-Parallel execution of matrix multiplication and normalization
-Dedicated hardware units for linear and non-linear operations
+parallel execution of matrix multiplication and normalization
+separate hardware units for linear and non-linear operations
 
-In contrast, our implementation runs on a standard CPU where:
+In contrast, our CPU-based implementation:
 
-All operations are executed sequentially
-PyTorch’s Softmax is already highly optimized at the kernel level
-Additional intermediate computations introduce overhead
+executes all operations sequentially
+relies on highly optimized PyTorch kernels for Softmax
+introduces additional intermediate computations (exp, sum, division)
 
-As a result, the latency-hiding benefit of operation fusion is not realized in a software-only setting.
+As a result, the latency-hiding advantage of operation fusion is not realized in this setting.
 
-Takeaway
+### Takeaway
 
-This experiment highlights an important systems-level insight:
+Efficient deep learning is not only about modifying models, but about aligning computation with hardware capabilities.
 
-Efficient deep learning is not only about modifying models, but also about aligning computation with hardware capabilities.
+Model compression (quantization, pruning) changes the model
+Operation fusion changes the execution of computation
 
-Operation fusion can provide significant speedups (15–20% as reported in the paper) when supported by appropriate hardware architecture, but may not translate directly to performance gains in general-purpose CPU environments.
+While operation fusion can achieve 15–20% latency reduction on specialized hardware (as reported in the paper), it does not directly translate to speedups on general-purpose CPU systems.
+
+--- 
 
 ## Future Work
-
-- Structured pruning with architecture-aware model reconstruction
-- Quantization-aware training (QAT)
-- Mixed-precision inference (FP16 / INT8 hybrid)
-- Benchmarking on GPU / specialized accelerators
-- Exploring Mixture-of-Experts (MoE) efficiency tradeoffs
+Structured pruning with architecture-aware model reconstruction
+Quantization-aware training (QAT)
+Mixed-precision inference (FP16 / INT8 hybrid)
+Benchmarking on GPU / specialized accelerators
+Exploring Mixture-of-Experts (MoE) efficiency tradeoffs
 
 ---
 
