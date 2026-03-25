@@ -152,7 +152,7 @@ As a result, the latency-hiding advantage of operation fusion is not realized in
 
 Efficient deep learning is not only about modifying models, but about aligning computation with hardware capabilities.
 
-= Model compression (quantization, pruning) changes the model
+- Model compression (quantization, pruning) changes the model
 
 - Operation fusion changes the execution of computation
 
