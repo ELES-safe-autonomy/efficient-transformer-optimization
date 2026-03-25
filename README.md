@@ -85,9 +85,7 @@ The key motivation is that normalization operations such as Softmax and LayerNor
 
 In standard Transformer attention, Softmax is applied prior to matrix multiplication:
 
-\[
-\text{Softmax}(x) V = \frac{\exp(x)}{\sum_i \exp(x_i)} V
-\]
+Softmax(x) @ V = (exp(x) / sum(exp(x))) @ V
 
 This involves the following steps:
 1. Compute element-wise exponentials \( \exp(x) \)
@@ -95,15 +93,10 @@ This involves the following steps:
 3. Normalize the vector
 4. Perform matrix multiplication with \( V \)
 
-### Algebraic Reordering (Operation Fusion)
-
 The paper shows that the above computation can be **reordered without changing the result**:
 
-\[
-\text{Softmax}(x) V
-=
-\frac{\exp(x) V}{\sum_i \exp(x_i)}
-\]
+(exp(x) @ V) / sum(exp(x))
+
 
 This fused formulation delays normalization and instead performs:
 - matrix multiplication first
@@ -141,14 +134,17 @@ Although the fused formulation is mathematically equivalent, it does not yield a
 
 The proposed method assumes:
 
-parallel execution of matrix multiplication and normalization
-separate hardware units for linear and non-linear operations
+- parallel execution of matrix multiplication and normalization
+
+- separate hardware units for linear and non-linear operations
 
 In contrast, our CPU-based implementation:
 
-executes all operations sequentially
-relies on highly optimized PyTorch kernels for Softmax
-introduces additional intermediate computations (exp, sum, division)
+- executes all operations sequentially
+
+- relies on highly optimized PyTorch kernels for Softmax
+
+- introduces additional intermediate computations (exp, sum, division)
 
 As a result, the latency-hiding advantage of operation fusion is not realized in this setting.
 
@@ -156,19 +152,24 @@ As a result, the latency-hiding advantage of operation fusion is not realized in
 
 Efficient deep learning is not only about modifying models, but about aligning computation with hardware capabilities.
 
-Model compression (quantization, pruning) changes the model
-Operation fusion changes the execution of computation
+= Model compression (quantization, pruning) changes the model
+
+- Operation fusion changes the execution of computation
 
 While operation fusion can achieve 15–20% latency reduction on specialized hardware (as reported in the paper), it does not directly translate to speedups on general-purpose CPU systems.
 
 --- 
 
 ## Future Work
-Structured pruning with architecture-aware model reconstruction
-Quantization-aware training (QAT)
-Mixed-precision inference (FP16 / INT8 hybrid)
-Benchmarking on GPU / specialized accelerators
-Exploring Mixture-of-Experts (MoE) efficiency tradeoffs
+- Structured pruning with architecture-aware model reconstruction
+
+- Quantization-aware training (QAT)
+
+- Mixed-precision inference (FP16 / INT8 hybrid)
+
+- Benchmarking on GPU / specialized accelerators
+
+- Exploring Mixture-of-Experts (MoE) efficiency tradeoffs
 
 ---
 
