@@ -89,14 +89,15 @@ The key motivation is that normalization operations such as Softmax and LayerNor
 
 In standard Transformer computation, Softmax is applied before matrix multiplication:
 
+Standard formulation:
 Softmax(x) @ V
 
-(exp(x) @ V) / sum(exp(x))
-
+Fused formulation:
+(exp(x) @ V) / ∑ exp(x)
 
 This transformation preserves exact numerical equivalence while enabling a key optimization:
 
-> The expensive normalization (denominator) can be computed **in parallel** with the matrix multiplication.
+The expensive normalization (denominator) can be computed **in parallel** with the matrix multiplication.
 
 ---
 
@@ -104,7 +105,7 @@ This transformation preserves exact numerical equivalence while enabling a key o
 
 The approach leverages a fundamental property:
 
-> **Matrix multiplication is linear and commutes with scaling**
+ **Matrix multiplication is linear and commutes with scaling**
 
 This allows normalization to be delayed until after the matrix multiplication without changing the final result.
 
