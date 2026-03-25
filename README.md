@@ -34,8 +34,6 @@ We evaluate a pretrained **DistilBERT** model fine-tuned on SST-2 (sentiment cla
 - Unstructured L1 pruning applied to linear layers
 - Introduces sparsity by removing low-magnitude weights
 
----
-
 ### 4️⃣ Structured Pruning
 - Structured pruning applied to linear layers
 - Removes channels in a more hardware-friendly way than irregular unstructured sparsity
