@@ -99,19 +99,11 @@ This transformation preserves exact numerical equivalence while enabling a key o
 
 The expensive normalization (denominator) can be computed **in parallel** with the matrix multiplication.
 
----
-
-### Why This Works
-
-The approach leverages a fundamental property:
+This approach leverages a fundamental property:
 
  **Matrix multiplication is linear and commutes with scaling**
 
 This allows normalization to be delayed until after the matrix multiplication without changing the final result.
-
----
-
-### Implementation in This Project
 
 We implemented a simplified version of the fused Softmax operation:
 
@@ -120,7 +112,7 @@ exp_x = torch.exp(x)
 numerator = exp_x @ V
 denominator = exp_x.sum(dim=-1, keepdim=True)
 output = numerator / denominator
-
+```
 
 
 This involves:
