@@ -44,10 +44,10 @@ We evaluate a pretrained **DistilBERT** model fine-tuned on SST-2 (sentiment cla
 
 | Model              | Latency (s) | Accuracy |
 |-------------------|------------:|---------:|
-| Baseline          | 0.040745    | 0.94     |
-| Quantized         | 0.054000    | 0.92     |
-| Pruned            | 0.067497    | 0.90     |
-| Structured Pruned | 0.066600    | 0.90     |
+| Baseline          | 0.026369    | 0.94     |
+| Quantized         | 0.055090    | 0.92     |
+| Pruned            | 0.068193    | 0.90     |
+| Structured Pruned | 0.026244    | 0.65     |
 
 ---
 
@@ -55,21 +55,25 @@ We evaluate a pretrained **DistilBERT** model fine-tuned on SST-2 (sentiment cla
 
 ### Quantization preserved accuracy well, but did not improve latency in this setup
 - Accuracy dropped only slightly from 94% to 92%
-- However, inference latency increased relative to the baseline on this CPU run
+- Inference latency increased relative to the baseline on CPU — dynamic quantization benefits require INT8-optimized hardware paths
 
-### Pruning and structured pruning both reduced accuracy and increased latency
-- Both pruning approaches resulted in lower accuracy (90%)
-- Neither method produced a practical speedup in the current implementation
+### Unstructured pruning increased latency and reduced accuracy
+- Accuracy dropped to 90%
+- Latency increased to 0.068s — irregular sparsity is not exploited by standard CPU runtimes
+
+### Structured pruning recovered baseline latency at the cost of accuracy
+- Latency matched the baseline (0.026s) because removing entire channels produces a genuinely smaller model
+- Accuracy dropped significantly to 65% at the current pruning amount (0.2), indicating the pruning ratio is aggressive for this task
 
 ### Hardware-awareness is critical
 - Reducing parameters or introducing sparsity does not automatically produce faster inference
-- Practical efficiency gains depend on how well the optimization aligns with the underlying runtime and hardware execution path
+- Structured pruning is the only technique here that produced a real latency reduction, because it changes model shape rather than just zeroing weights
 
 ---
 
 ## Results & Discussion
 
-We evaluate the impact of efficiency techniques on transformer inference performance using a pretrained DistilBERT model fine-tuned on SST-2. In this experimental setup, the baseline model achieved 94% accuracy with an average inference latency of 0.0407s. Dynamic quantization preserved strong predictive performance, with accuracy decreasing only slightly to 92%, but it did not improve latency and instead increased inference time to 0.0540s. Unstructured pruning and structured pruning both reduced accuracy to 90% and further increased latency to 0.0675s and 0.0666s, respectively. These results show that model compression or sparsity alone does not guarantee practical speedup. Instead, real deployment gains depend on whether the optimization technique is well supported by the execution backend and hardware. Overall, the experiments highlight an important systems insight: efficient deep learning is not only about reducing model complexity, but about matching optimization strategies to the target hardware environment.
+We evaluate the impact of efficiency techniques on transformer inference performance using a pretrained DistilBERT model fine-tuned on SST-2. The baseline model achieved 94% accuracy with an average inference latency of 0.0264s. Dynamic quantization preserved strong predictive performance (92% accuracy) but increased latency to 0.0551s on CPU, where INT8 execution paths are not natively accelerated. Unstructured pruning reduced accuracy to 90% and raised latency to 0.0682s — irregular sparsity introduces no computational savings without sparse kernel support. Structured pruning produced a markedly different outcome: latency returned to baseline levels (0.0262s) because removing entire channels reduces the model's actual compute graph, not just its weight values. However, accuracy dropped significantly to 65% at a pruning amount of 0.2, indicating this ratio is too aggressive for the SST-2 task without retraining. These results highlight a key systems insight: real latency reductions require optimizations that change how computation is executed, not just how much data is stored.
 
 ---
 

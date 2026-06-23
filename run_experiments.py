@@ -26,7 +26,7 @@ def main():
 
     # Structured Pruned
     struct_pruned_model = apply_structured_pruning(model, amount=0.2)
-    sp_latency, sp_acc = benchmark_model(pruned_model, tokenizer, dataset)
+    sp_latency, sp_acc = benchmark_model(struct_pruned_model, tokenizer, dataset)
 
     std_softmax_time = benchmark_standard_softmax()
     fused_softmax_time = benchmark_fused_softmax()
