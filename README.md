@@ -40,6 +40,20 @@ We evaluate a pretrained **DistilBERT** model fine-tuned on SST-2 (sentiment cla
 
 ---
 
+## Benchmark Setup
+
+All latency and accuracy numbers below were measured on a single machine with the following environment:
+
+- **CPU:** Intel(R) Xeon(R) E5-1630 v4 @ 3.70GHz (CPU-only, no GPU)
+- **OS:** Windows 11 Enterprise
+- **PyTorch:** 2.10.0+cpu, running with 4 threads
+- **Transformers:** 5.5.4
+- **Python:** 3.12.2
+
+Latency is wall-clock time per single-sample forward pass (batch size 1), averaged over the evaluation set described below. These numbers are hardware-specific — a different CPU, thread count, or a GPU would produce different latency figures, though relative trends between the optimization techniques should hold on similar CPU-only setups.
+
+---
+
 ## Results
 
 | Model              | Latency (s) | Accuracy |
