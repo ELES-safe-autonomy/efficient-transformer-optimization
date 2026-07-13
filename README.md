@@ -52,32 +52,34 @@ All latency and accuracy numbers below were measured on a single machine with th
 
 Latency is wall-clock time per single-sample forward pass (batch size 1), averaged over the evaluation set described below. These numbers are hardware-specific — a different CPU, thread count, or a GPU would produce different latency figures, though relative trends between the optimization techniques should hold on similar CPU-only setups.
 
+**Evaluation set:** results are computed over the **full SST-2 validation split (872 examples)**, not a subsample. An earlier version of this benchmark capped evaluation at 100 samples; re-running on the full set changed the accuracy ordering between Quantized and Pruned (see Key Insights below) — a useful reminder that small evaluation samples can produce misleading comparative conclusions.
+
 ---
 
 ## Results
 
 | Model              | Latency (s) | Accuracy |
 |-------------------|------------:|---------:|
-| Baseline          | 0.026369    | 0.94     |
-| Quantized         | 0.055090    | 0.92     |
-| Pruned            | 0.068193    | 0.90     |
-| Structured Pruned | 0.026244    | 0.65     |
+| Baseline          | 0.025661    | 0.9106   |
+| Quantized         | 0.054064    | 0.8979   |
+| Pruned            | 0.069895    | 0.9014   |
+| Structured Pruned | 0.024707    | 0.6330   |
 
 ---
 
 ## Key Insights
 
 ### Quantization preserved accuracy well, but did not improve latency in this setup
-- Accuracy dropped only slightly from 94% to 92%
+- Accuracy dropped from 91.1% to 89.8% (~1.3 points)
 - Inference latency increased relative to the baseline on CPU — dynamic quantization benefits require INT8-optimized hardware paths
 
-### Unstructured pruning increased latency and reduced accuracy
-- Accuracy dropped to 90%
-- Latency increased to 0.068s — irregular sparsity is not exploited by standard CPU runtimes
+### Unstructured pruning matched quantization's accuracy while also increasing latency
+- Accuracy landed at 90.1% — on the full validation set this is marginally *higher* than quantization's 89.8%, reversing what an earlier 100-sample evaluation showed (94% vs 92% vs 90%, quantization clearly ahead of pruning). At n=100 that gap was mostly sampling noise; at the full n=872 it nearly disappears.
+- Latency increased to 0.070s — irregular sparsity is not exploited by standard CPU runtimes
 
 ### Structured pruning recovered baseline latency at the cost of accuracy
-- Latency matched the baseline (0.026s) because removing entire channels produces a genuinely smaller model
-- Accuracy dropped significantly to 65% at the current pruning amount (0.2), indicating the pruning ratio is aggressive for this task
+- Latency matched — and here, slightly beat — the baseline (0.0247s vs 0.0257s) because removing entire channels produces a genuinely smaller model
+- Accuracy dropped significantly to 63.3% at the current pruning amount (0.2), indicating the pruning ratio is aggressive for this task
 
 ### Hardware-awareness is critical
 - Reducing parameters or introducing sparsity does not automatically produce faster inference
@@ -87,7 +89,7 @@ Latency is wall-clock time per single-sample forward pass (batch size 1), averag
 
 ## Results & Discussion
 
-We evaluate the impact of efficiency techniques on transformer inference performance using a pretrained DistilBERT model fine-tuned on SST-2. The baseline model achieved 94% accuracy with an average inference latency of 0.0264s. Dynamic quantization preserved strong predictive performance (92% accuracy) but increased latency to 0.0551s on CPU, where INT8 execution paths are not natively accelerated. Unstructured pruning reduced accuracy to 90% and raised latency to 0.0682s — irregular sparsity introduces no computational savings without sparse kernel support. Structured pruning produced a markedly different outcome: latency returned to baseline levels (0.0262s) because removing entire channels reduces the model's actual compute graph, not just its weight values. However, accuracy dropped significantly to 65% at a pruning amount of 0.2, indicating this ratio is too aggressive for the SST-2 task without retraining. These results highlight a key systems insight: real latency reductions require optimizations that change how computation is executed, not just how much data is stored.
+We evaluate the impact of efficiency techniques on transformer inference performance using a pretrained DistilBERT model fine-tuned on SST-2, over the full 872-example validation split. The baseline model achieved 91.1% accuracy with an average inference latency of 0.0257s. Dynamic quantization preserved strong predictive performance (89.8% accuracy) but increased latency to 0.0541s on CPU, where INT8 execution paths are not natively accelerated. Unstructured pruning landed at a nearly identical 90.1% accuracy — marginally higher than quantization — while raising latency further to 0.0699s; irregular sparsity introduces no computational savings without sparse kernel support. Structured pruning produced a markedly different outcome: latency matched, and slightly beat, baseline levels (0.0247s) because removing entire channels reduces the model's actual compute graph, not just its weight values. However, accuracy dropped significantly to 63.3% at a pruning amount of 0.2, indicating this ratio is too aggressive for the SST-2 task without retraining. These results highlight a key systems insight: real latency reductions require optimizations that change how computation is executed, not just how much data is stored. They also highlight a methodological one: an earlier version of this benchmark evaluated only 100 validation samples, under which quantization appeared to retain accuracy meaningfully better than unstructured pruning (92% vs 90%); on the full validation set that gap nearly vanishes, illustrating how small evaluation samples can produce misleading comparative conclusions.
 
 ---
 

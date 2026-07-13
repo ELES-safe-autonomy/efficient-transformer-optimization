@@ -1,15 +1,16 @@
 import time
 import torch
 
-def benchmark_model(model, tokenizer, dataset, device="cpu", max_samples=100):
+def benchmark_model(model, tokenizer, dataset, device="cpu", max_samples=None):
     model.to(device)
     model.eval()
 
     total_time = 0
     correct = 0
+    n_samples = len(dataset) if max_samples is None else min(max_samples, len(dataset))
 
     for i, sample in enumerate(dataset):
-        if i >= max_samples:
+        if i >= n_samples:
             break
 
         inputs = tokenizer(sample["sentence"], return_tensors="pt", truncation=True, padding=True)
@@ -26,8 +27,8 @@ def benchmark_model(model, tokenizer, dataset, device="cpu", max_samples=100):
         if pred == sample["label"]:
             correct += 1
 
-    avg_latency = total_time / max_samples
-    accuracy = correct / max_samples
+    avg_latency = total_time / n_samples
+    accuracy = correct / n_samples
 
     return avg_latency, accuracy
 
