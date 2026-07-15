@@ -18,6 +18,21 @@ This project explores:
 
 ---
 
+## Repo Structure
+
+```
+.
+├── models/             # Model loading (pretrained DistilBERT)
+├── optimization/       # Quantization, pruning, and fused-softmax implementations
+├── benchmarking/       # Latency/accuracy benchmarking harness
+├── utils/              # Dataset loading utilities
+├── results/            # Benchmark output (results.csv)
+├── run_experiments.py  # Entry point — runs all optimization techniques and benchmarks them
+└── requirements.txt
+```
+
+---
+
 ## Methodology
 
 We evaluate a pretrained **DistilBERT** model fine-tuned on SST-2 (sentiment classification) under four settings:
