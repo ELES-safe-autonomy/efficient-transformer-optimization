@@ -33,6 +33,7 @@ We evaluate a pretrained **DistilBERT** model fine-tuned on SST-2 (sentiment cla
 ### 3️⃣ Pruning
 - Unstructured L1 pruning applied to linear layers
 - Introduces sparsity by removing low-magnitude weights
+- Pruning ratio: 0.3 (30% of weights per linear layer)
 
 ### 4️⃣ Structured Pruning
 - Structured pruning applied to linear layers
@@ -76,6 +77,7 @@ Latency is wall-clock time per single-sample forward pass (batch size 1), averag
 ### Unstructured pruning matched quantization's accuracy while also increasing latency
 - Accuracy landed at 90.1% — on the full validation set this is marginally *higher* than quantization's 89.8%, reversing what an earlier 100-sample evaluation showed (94% vs 92% vs 90%, quantization clearly ahead of pruning). At n=100 that gap was mostly sampling noise; at the full n=872 it nearly disappears.
 - Latency increased to 0.070s — irregular sparsity is not exploited by standard CPU runtimes
+- `apply_pruning()` never calls `prune.remove()`, so each pruned layer retains both `weight_orig` and `weight_mask` as separate tensors; PyTorch's pruning hook multiplies them together on every forward pass, adding a full-size elementwise multiply on top of the original dense matmul rather than shrinking it
 
 ### Structured pruning recovered baseline latency at the cost of accuracy
 - Latency matched — and here, slightly beat — the baseline (0.0247s vs 0.0257s) because removing entire channels produces a genuinely smaller model
